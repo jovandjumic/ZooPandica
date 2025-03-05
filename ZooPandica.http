@@ -1,0 +1,6 @@
+@ZooPandica_HostAddress = http://localhost:5067
+
+GET {{ZooPandica_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
