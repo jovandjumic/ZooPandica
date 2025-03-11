@@ -3,8 +3,8 @@ namespace ZooPandica.Models
     public class Animal
     {
         public int ID { get; set; }
-        public string Ime { get; set; }
-        public string Slika { get; set; } // Putanja do slike
-        public string Opis { get; set; }
+        public required string Name { get; set; }
+        public required string ImageUrl { get; set; }
+        public required string Description { get; set; }
     }
 }

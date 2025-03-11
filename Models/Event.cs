@@ -3,9 +3,9 @@ namespace ZooPandica.Models
     public class Event
     {
         public int ID { get; set; }
-        public string Naziv { get; set; }
-        public string Opis { get; set; }
-        public string Slika { get; set; } // Putanja do slike
-        public int BrojLajkova { get; set; }
+        public required string Title { get; set; }
+        public required string Description { get; set; }
+        public required string ImageUrl { get; set; }
+        public required DateTime Date { get; set; }
     }
 }

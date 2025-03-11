@@ -1,21 +1,59 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using ZooPandica.Data;
+using ZooPandica.Models;
+using ZooPandica.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Konfiguracija konekcije sa bazom
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Omogućavamo rad sa kontrolerima
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+
+var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET", EnvironmentVariableTarget.Process)
+    ?? throw new InvalidOperationException("JWT_SECRET is not set!");
+
+Console.WriteLine($"JWT_SECRET: {jwtKey}");
+
+var jwtIssuer = jwtSettings["Issuer"]
+    ?? throw new InvalidOperationException("JWT Issuer is not set in configuration.");
+
+var jwtAudience = jwtSettings["Audience"]
+    ?? throw new InvalidOperationException("JWT Audience is not set in configuration.");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            ValidateIssuer = true,
+            ValidIssuer = jwtIssuer,
+            ValidateAudience = true,
+            ValidAudience = jwtAudience,
+            ValidateLifetime = true
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Omogućavanje HTTPS
 app.UseHttpsRedirection();
 
-// Mapiranje API kontrolera
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
