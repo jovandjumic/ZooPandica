@@ -16,8 +16,6 @@ var jwtSettings = builder.Configuration.GetSection("Jwt");
 var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET", EnvironmentVariableTarget.Process)
     ?? throw new InvalidOperationException("JWT_SECRET is not set!");
 
-Console.WriteLine($"JWT_SECRET: {jwtKey}");
-
 var jwtIssuer = jwtSettings["Issuer"]
     ?? throw new InvalidOperationException("JWT Issuer is not set in configuration.");
 
